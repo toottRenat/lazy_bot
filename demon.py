@@ -3,10 +3,11 @@ import subprocess
 import webbrowser
 import pyglet
 import os
+import time
 from gtts import gTTS
 
 
-def tell_and_die(speech='ахаха', name='1.mp3'):
+def tell_and_die(speech='', name='1.mp3'):
     if name == '1.mp3':
         tts = gTTS(text=speech, lang='ru')
         tts.save("1.mp3")
@@ -51,19 +52,17 @@ def start():
         if new_st != '':
             break
     try:
-        #subprocess.run(["start", new_st], shell=True, check=True)
-        p = subprocess.Popen(["start", new_st], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, errors = p.communicate()
-        print(output)
-        print('-----------')
-        print(errors)
+        #p = subprocess.check_call(' '.join(['start', new_st]), shell=True)
+        #print('out:', p)
+        with subprocess.Popen(' '.join(['start', new_st]), shell=True) as p:
+            time.sleep(1)
+            p.terminate()
     except subprocess.CalledProcessError as e:
         print("Что-то пошло не так при запуске ({0})".format(e))
 
 if __name__ == '__main__':
     while True:
         st = get_word()
-        # print(st)
         if st == 'поиск':
             ggl()
         elif st == 'запуск':
