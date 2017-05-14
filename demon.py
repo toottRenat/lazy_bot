@@ -23,6 +23,7 @@ def get_word():
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print("Скажите что-нибудь")
+        r.adjust_for_ambient_noise(source)
         audio = r.listen(source)
     s = ''
     try:
@@ -60,10 +61,21 @@ def start():
     except subprocess.CalledProcessError as e:
         print("Что-то пошло не так при запуске ({0})".format(e))
 
+
+def record():  # todo
+    new_st = ''
+    while True:
+        print('Начал запись')
+        new_st = get_word()
+        if new_st != '':
+            break
+
 if __name__ == '__main__':
     while True:
-        st = get_word()
+        st = get_word().lower()
         if st == 'поиск':
             ggl()
         elif st == 'запуск':
             start()
+        elif st == 'запись':
+            record()
