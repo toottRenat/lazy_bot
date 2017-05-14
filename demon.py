@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import speech_recognition as sr
 import subprocess
 import webbrowser
@@ -48,6 +51,7 @@ def ggl():
 
 
 def start():
+    tell_and_die(speech='Какую программу запустить?')
     while True:
         new_st = get_word()
         if new_st != '':
@@ -63,12 +67,36 @@ def start():
 
 
 def record():  # todo
-    new_st = ''
+    tell_and_die(speech='В какой файл записать?')
+
     while True:
-        print('Начал запись')
+        print('Скажите название файла')
         new_st = get_word()
         if new_st != '':
             break
+    try:
+        file = open(''.join([new_st, '.txt']))
+    except IOError as e:
+        open_and_write(new_st)
+    else:
+        file.close()
+        open_and_write(new_st, mode='a')
+
+
+def open_and_write(file_name, mode='w'):
+    with open(''.join([file_name, '.txt']), mode) as file:
+        tell_and_die(speech='Запись началась')
+        while True:
+            new_st = get_word()
+            if new_st.lower() == 'закончить запись' or new_st.lower() == 'закончи запись':
+                break
+            else:
+                if new_st != '':
+                    file.write(new_st + '\n')
+                    tell_and_die(speech='Продолжайте')
+        tell_and_die(speech='Запись успешно завершена')
+        file.write('\n')
+
 
 if __name__ == '__main__':
     while True:
