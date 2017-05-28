@@ -9,8 +9,9 @@ import time
 from gtts import gTTS
 
 
-def tell_and_die(speech='', name='1.mp3'):
-    if name == '1.mp3':
+def tell_and_die(speech='', name='1.mp3'):  # воспроизводит либо заданный текст, либо имеющуюся запись,
+    if name == '1.mp3':                     # соответственно, если была подана запись,
+                                            # то не имеет смысла добавлять какой-либо текст
         tts = gTTS(text=speech, lang='ru')
         tts.save("1.mp3")
         sound = pyglet.resource.media('1.mp3', streaming=False)
@@ -21,7 +22,7 @@ def tell_and_die(speech='', name='1.mp3'):
         sound.play()
 
 
-def get_word():
+def get_word():  # считывает входящий поток с микрофона и переводит его в текст
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print("Скажите что-нибудь")
@@ -38,7 +39,7 @@ def get_word():
     return s
 
 
-def ggl():
+def ggl():  # забивает весь поток с микрофона в гугл с открытием браузера
     tell_and_die(speech='Что найти?')
     while True:
         new_st = get_word()
@@ -49,15 +50,14 @@ def ggl():
                     '775j0j8&sourceid=chrome&ie=UTF-8'.format(new_st, new_st))
 
 
-def start():
+def start():  # запускает программу по имени. Очень важно, чтобы данное имя имелось в переменной PATH
+              # и да, это пока только под винду. О том, как это должно работать под линуксом пока не задумывался
     tell_and_die(speech='Какую программу запустить?')
     while True:
         new_st = get_word()
         if new_st != '':
             break
     try:
-        #p = subprocess.check_call(' '.join(['start', new_st]), shell=True)
-        #print('out:', p)
         with subprocess.Popen(' '.join(['start', new_st]), shell=True) as p:
             time.sleep(1)
             p.terminate()
