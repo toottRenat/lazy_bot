@@ -9,7 +9,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 2
 RATE = 16000
 N = 0.128  # длина кадра
-RECORD_SECONDS = 3
+RECORD_SECONDS = 10
 WIDTH_TO_BITS = {1: np.int8, 2: np.int16, 4: np.int32}
 SAMPLE_WIDTH = 2
 
@@ -69,9 +69,17 @@ def rfft(data):
 def convert_to_mels(data):
     return np.array([1127*np.log(1 + i/700) for i in data])
 
+
+def melkepstr(data):
+    return [np.sum([np.log(data[i][j])*(i*(j - 0.5)*np.pi/len(data)) for j in range(len(data[i])) if data[i][j] > 0]) for i in range(len(data))]
+
+
 if __name__ == '__main__':
     ints = np.fromstring(read_data(), WIDTH_TO_BITS[SAMPLE_WIDTH])
     ints = normalize(ints)
     lf, rf = ints[0::2], ints[1::2]  # left and right channel
-    lf = convert_to_mels(rfft(apply_hamming(cutting(lf))))
-    rf = convert_to_mels(rfft(apply_hamming(cutting(rf))))
+    lf = melkepstr(convert_to_mels(rfft(apply_hamming(cutting(lf)))))[1:]
+    rf = melkepstr(convert_to_mels(rfft(apply_hamming(cutting(rf)))))[1:]
+    sf = ' '.join([str((rf[i] + lf[i])/2) for i in range(len(rf))]) + '\n'
+    with open('yak.txt', 'a') as f:
+        f.write(sf)
