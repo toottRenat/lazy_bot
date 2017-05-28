@@ -44,7 +44,7 @@ def ggl():
         new_st = get_word()
         if new_st != '':
             break
-    tell_and_die(name='recorded_sounds/sklonyayus-pered-vashej-volej.mp3')
+    tell_and_die(name='share/recorded_sounds/sklonyayus-pered-vashej-volej.mp3')
     webbrowser.open('https://www.google.ru/search?q={0}&oq={1}&aqs=chrome.0.69i59j69i61.'
                     '775j0j8&sourceid=chrome&ie=UTF-8'.format(new_st, new_st))
 
