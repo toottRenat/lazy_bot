@@ -65,7 +65,7 @@ def start():  # запускает программу по имени. Очен�
         print("Что-то пошло не так при запуске ({0})".format(e))
 
 
-def record():  # todo
+def record():
     tell_and_die(speech='В какой файл записать?')
 
     while True:
@@ -75,7 +75,7 @@ def record():  # todo
             break
     try:
         file = open(''.join([new_st, '.txt']))
-    except IOError as e:
+    except IOError:
         open_and_write(new_st)
     else:
         file.close()
@@ -98,11 +98,10 @@ def open_and_write(file_name, mode='w'):
 
 
 if __name__ == '__main__':
+    functionality = {'поиск': ggl, 'запуск': start, 'запись': record}
     while True:
         st = get_word().lower()
-        if st == 'поиск':
-            ggl()
-        elif st == 'запуск':
-            start()
-        elif st == 'запись':
-            record()
+        try:
+            functionality[st]()
+        except KeyError:
+            pass

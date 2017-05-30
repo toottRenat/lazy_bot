@@ -9,7 +9,8 @@ import vk
 import time
 
 # id of vk.com application
-APP_ID = 6043173
+# APP_ID = 6043173
+APP_ID =6054131
 # file, where auth data is saved
 AUTH_FILE = '.auth_data'
 # chars to exclude from filename
@@ -45,7 +46,9 @@ def get_auth_params():
                 "&scope=wall,messages&redirect_uri=http://oauth.vk.com/blank.html"
                 "&display=page&response_type=token".format(app_id=APP_ID))
     webbrowser.open_new_tab(auth_url)
-    redirected_url = input("Paste here url you were redirected:\n")
+    redirected_url = "https://oauth.vk.com/blank.html#access_token=9c1b7343ed95358f82abb1e8a087951fb8a4ad77" \
+                     "604ad2406c230167701122ba74c9314e0fa93af644a49&expires_in=86400&user_id=3920099"
+    #redirected_url = input("Paste here url you were redirected:\n")
     aup = parse_qs(redirected_url)
     aup['access_token'] = aup.pop(
         '#access_token')
@@ -73,9 +76,10 @@ def main():
     if not access_token or not _:
         access_token, _ = get_auth_params()
     api = get_api(access_token)
-
-    users = [95249893]
-    user_text = "ЙОУ ЙОУ ЙОУ"
+    # "https://oauth.vk.com/blank.html#access_token=5d48a5b8ac84717405354d5549b2b0cb845e03eafe19fe4666f3583121c32a2b7656bf38eb8dc1557615d&expires_in=86400&user_id=3920099"
+    #users = [95249893]
+    users = [3920099]
+    user_text = "."
     for user_id in users:
         print("User ", user_id)
         res = send_message(api, user_id=user_id, message=user_text)
