@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 import speech_recognition as sr
 import subprocess
@@ -7,6 +7,8 @@ import pyglet
 import os
 import time
 from gtts import gTTS
+
+STOP_RECORDING = ['закончить запись', 'закончи запись']
 
 
 def tell_and_die(speech='', name='1.mp3'):  # воспроизводит либо заданный текст, либо имеющуюся запись,
@@ -51,7 +53,7 @@ def ggl():  # забивает весь поток с микрофона в гу
 
 
 def start():  # запускает программу по имени. Очень важно, чтобы данное имя имелось в переменной PATH
-              # и да, это пока только под винду. О том, как это должно работать под линуксом пока не задумывался
+              # и да, это пока только под винду. О том, как это должно работать под линуксом, пока не задумывался
     tell_and_die(speech='Какую программу запустить?')
     while True:
         new_st = get_word()
@@ -87,7 +89,7 @@ def open_and_write(file_name, mode='w'):
         tell_and_die(speech='Запись началась')
         while True:
             new_st = get_word()
-            if new_st.lower() == 'закончить запись' or new_st.lower() == 'закончи запись':
+            if new_st.lower() in STOP_RECORDING:
                 break
             else:
                 if new_st != '':
