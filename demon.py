@@ -117,7 +117,7 @@ def skype_call():
                 tell_and_die(speech=' '.join(['Контакт', new_st, 'не найден, попробуйте еще раз']))
     except FileNotFoundError:
         tell_and_die(speech='Нет ни одного контакта. Необходимо добавить хотя бы один контакт')
-    else:
+    else:  # если не было исключения
         try:
             with subprocess.Popen(' '.join(['skype', '/callto:' + new_st]), shell=True) as p:
                 time.sleep(1)
