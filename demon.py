@@ -105,16 +105,21 @@ def skype_call():
         new_st = get_word()
         if new_st != '':
             break
-    # todo
     try:
-        with open('var/skype/contacts.txt', 'w') as f:
+        with open('var/skype/contacts.txt', 'r') as f:
             for line in f:
-                print(line)
+                ans = line.split(' : ')
+                if ans[0].lower() == new_st.lower():
+                    print(ans[0], ans[-1])
+                    new_st = ans[-1]
+                    break
+            else:  # если брейк не произошел
+                tell_and_die(speech=' '.join(['Контакт', new_st, 'не найден, попробуйте еще раз']))
     except FileNotFoundError:
         tell_and_die(speech='Нет ни одного контакта. Необходимо добавить хотя бы один контакт')
     else:
         try:
-            with subprocess.Popen(' '.join(['Skype.exe', '/skypeto:', new_st]), shell=True) as p:
+            with subprocess.Popen(' '.join(['skype', '/callto:' + new_st]), shell=True) as p:
                 time.sleep(1)
                 p.terminate()
         except subprocess.CalledProcessError as e:
@@ -122,7 +127,7 @@ def skype_call():
 
 
 if __name__ == '__main__':
-    functionality = {'поиск': ggl, 'запуск': start, 'запись': record, 'звонок по skype': skype_call}
+    functionality = {'поиск': ggl, 'запуск': start, 'запись': record, 'skype': skype_call}
     while True:
         st = get_word().lower()
         try:

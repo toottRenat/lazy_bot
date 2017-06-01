@@ -1,4 +1,5 @@
 import tkinter.messagebox
+import demon
 from lib.lazy_tkinter import MyEntry, MyButton, MyLabel
 from tkinter import *
 
@@ -16,9 +17,11 @@ class SkypeConfig(Tk):
 
         self.accept_button = MyButton(self, 'Запомнить', 2, 1, cur_func=self.add_contact)
 
+        self.voice_button = MyButton(self, 'Использовать голос', 2, 0, cur_func=self.get_from_micro, my_width=20)
+
         self.mainloop()
 
-    def add_contact(self, event):  # возможно, стоит также сделать возможность удалять и просматривать эти строки
+    def add_contact(self, _):  # возможно, стоит также сделать возможность удалять и просматривать эти строки
         if self.name_entry.get() != '' and self.id_entry.get() != '':
             with open('var/skype/contacts.txt', 'a') as f:
                 f.write(' : '.join([self.name_entry.get(), self.id_entry.get()]))
@@ -26,6 +29,14 @@ class SkypeConfig(Tk):
                 tkinter.messagebox.showinfo('Well done', "Контакт успешно добавлен")
         else:
             tkinter.messagebox.showerror('Error', "Необходимо заполнить все поля!")
+
+    def get_from_micro(self, _):
+        demon.tell_and_die(speech='Как запомнить данный контакт?')
+        while True:
+            st = demon.get_word()
+            if st != '':
+                self.name_entry.insert(st)
+                break
 
 if __name__ == '__main__':
     pa = SkypeConfig()

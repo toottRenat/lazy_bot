@@ -1,15 +1,15 @@
 from tkinter import *
 
 
-def pass_f(event):
+def pass_f(_):
     pass
 
 
 class MyButton:
-    def __init__(self, root, my_text, my_row, my_column, cur_func=pass_f, my_state='normal'):
+    def __init__(self, root, my_text, my_row, my_column, cur_func=pass_f, my_state='normal', my_width=10):
         self.button = Button(root,
                              text=my_text, font='Arial 10',
-                             width=10, height=3,
+                             width=my_width, height=3,
                              bg="white", fg="black",
                              state=my_state)
         self.button.grid(row=my_row, column=my_column)
@@ -68,6 +68,9 @@ class MyEntry:
 
     def get(self):
         return self.entry.get()
+
+    def insert(self, st):
+        self.entry.insert(0, st)
 
 
 class MyLabel:
