@@ -10,7 +10,7 @@ import time
 
 # id of vk.com application
 # APP_ID = 6043173
-APP_ID =6054131
+APP_ID = 6054131
 # file, where auth data is saved
 AUTH_FILE = '.auth_data'
 # chars to exclude from filename

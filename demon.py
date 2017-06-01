@@ -99,8 +99,30 @@ def open_and_write(file_name, mode='w'):
         file.write('\n')
 
 
+def skype_call():
+    tell_and_die(speech='Кому позвонить?')
+    while True:
+        new_st = get_word()
+        if new_st != '':
+            break
+    # todo
+    try:
+        with open('var/skype/contacts.txt', 'w') as f:
+            for line in f:
+                print(line)
+    except FileNotFoundError:
+        tell_and_die(speech='Нет ни одного контакта. Необходимо добавить хотя бы один контакт')
+    else:
+        try:
+            with subprocess.Popen(' '.join(['Skype.exe', '/skypeto:', new_st]), shell=True) as p:
+                time.sleep(1)
+                p.terminate()
+        except subprocess.CalledProcessError as e:
+            print("Что-то пошло не так при запуске ({0})".format(e))
+
+
 if __name__ == '__main__':
-    functionality = {'поиск': ggl, 'запуск': start, 'запись': record}
+    functionality = {'поиск': ggl, 'запуск': start, 'запись': record, 'звонок по skype': skype_call}
     while True:
         st = get_word().lower()
         try:
