@@ -67,7 +67,7 @@ def ggl():  # забивает весь поток с микрофона в гу
                     '775j0j8&sourceid=chrome&ie=UTF-8'.format(new_st, new_st))
 
 
-def start():  # запускает программу по имени. Очень важно, чтобы данное имя имелось в переменной PATH
+def start():  # запускает программу по имени. Очень важно, чтобы данное имя имелось в переменной PATH,
               # и да, это пока только под винду. О том, как это должно работать под линуксом, пока не задумывался
     tell_and_die(speech='Какую программу запустить?')
     while True:
@@ -139,6 +139,17 @@ def skype_call():
                 p.terminate()
         except subprocess.CalledProcessError as e:
             print("Что-то пошло не так при запуске ({0})".format(e))
+
+
+def pseudo_main():
+    tell_and_die('Приветствую! ')
+    functionality = {'поиск': ggl, 'запуск': start, 'запись': record, 'skype': skype_call}
+    while True:
+        st = get_word().lower()
+        try:
+            functionality[st]()
+        except KeyError:
+            pass
 
 
 if __name__ == '__main__':

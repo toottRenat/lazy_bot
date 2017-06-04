@@ -11,9 +11,8 @@ def add_to_path(op):
         s += op[i]
         i -= 1
     s = s[::-1]
-    #print(s)
-    #print(op[:i])
-    subprocess.run(["setx", 'path', '"%path%;{0}"'.format(op[:i])], shell=True)
+    #subprocess.run(['setx', op[:i], '"%path%"'], shell=True)
+    subprocess.run(['path', '"%path%;{0}"'.format(op[:i])], shell=True)
 
 
 class PathAdder(Tk):
@@ -47,4 +46,5 @@ class PathAdder(Tk):
             tkinter.messagebox.showinfo("Info", 'Файл, раположеный по пути "{0}" был успешно добавлен в PATH'.format(op))
 
 if __name__ == '__main__':
+
     pa = PathAdder()

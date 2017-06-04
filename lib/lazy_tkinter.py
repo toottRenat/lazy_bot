@@ -1,22 +1,36 @@
 from tkinter import *
 
 
+"""
+Да, я в курсе, что эта либа написана супез хуево.
+Сорян, перепишу, когда будет не лень.
+"""
+
+
 def pass_f(_):
     pass
 
 
 class MyButton:
-    def __init__(self, root, my_text, my_row, my_column, cur_func=pass_f, my_state='normal', my_width=10):
-        self.button = Button(root,
-                             text=my_text, font='Arial 10',
-                             width=my_width, height=3,
-                             bg="white", fg="black",
-                             state=my_state)
+    def __init__(self, root, my_row, my_column, cur_func=pass_f, my_text=None,
+                 my_state='normal', my_width=10, my_color='white', my_height=3, img=None, command=None):
+        self.button = Button(root, font='Arial 10',
+                             width=my_width, height=my_height,
+                             bg=my_color, fg="black",
+                             state=my_state, command=command)
         self.button.grid(row=my_row, column=my_column)
         self.button.bind("<Button-1>", cur_func)  # при нажатии ЛКМ на кнопку вызывается функция cur_func
+        if my_text is None:
+            self.button["image"] = img
+            self.button["compound"] = CENTER
+        else:
+            self.button["text"] = my_text
 
     def config(self, my_state="normal"):
         self.button.config(state=my_state)
+
+    def invoke(self):
+        self.button.invoke()
 
 
 class MyCheckButton:
@@ -60,10 +74,11 @@ class MyMessage:
 
 
 class MyEntry:
-    def __init__(self, root, my_row, my_column, my_width=30, my_relief='raised'):
+    def __init__(self, root, my_row, my_column, my_width=30, my_relief='raised', my_color='white'):
         self.entry = Entry(root,
                            width=my_width,
-                           relief=my_relief)
+                           relief=my_relief,
+                           bg=my_color)
         self.entry.grid(row=my_row, column=my_column)
 
     def get(self):
@@ -74,6 +89,6 @@ class MyEntry:
 
 
 class MyLabel:
-    def __init__(self, root, my_row, my_column, text):
-        self.id_label = Label(root, text=text)
-        self.id_label.grid(row=my_row, column=my_column)
+    def __init__(self, root, my_row, my_column, text, my_color='white'):
+        self.label = Label(root, text=text, bg=my_color)
+        self.label.grid(row=my_row, column=my_column)
