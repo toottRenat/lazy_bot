@@ -142,7 +142,7 @@ def skype_call():
 
 
 def pseudo_main():
-    tell_and_die('Приветствую! ')
+    tell_and_die('Приветствую! Ожидаю Ваших указаний')
     functionality = {'поиск': ggl, 'запуск': start, 'запись': record, 'skype': skype_call}
     while True:
         st = get_word().lower()
@@ -153,10 +153,4 @@ def pseudo_main():
 
 
 if __name__ == '__main__':
-    functionality = {'поиск': ggl, 'запуск': start, 'запись': record, 'skype': skype_call}
-    while True:
-        st = get_word().lower()
-        try:
-            functionality[st]()
-        except KeyError:
-            pass
+    pseudo_main()

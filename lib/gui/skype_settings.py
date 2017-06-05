@@ -54,7 +54,7 @@ class SkypeConfig:
         while True:
             st = demon.get_word()
             if st != '':
-                self.name_entry.insert(st)
+                self.name_entry.insert(0, st)
                 break
 
     def show_content(self):

@@ -2,8 +2,8 @@ from tkinter import *
 
 
 """
-Да, я в курсе, что эта либа написана супер хуево.
-Сорян, перепишу, когда будет не лень.
+Все должно быть ясно и без документации, либа детская.
+Онли классы-хелперы.
 """
 
 
@@ -14,7 +14,7 @@ def pass_f(_):
 class MyButton(Button):
     def __init__(self, root, my_row, my_column, cur_func=pass_f, my_text=None,
                  my_state='normal', my_width=10, my_color='white', my_height=3, img=None, command=None):
-        super(MyButton, self).__init__(root, font='Arial 10',  # магия, не иначе
+        super(MyButton, self).__init__(root, font='Arial 10',
                                        width=my_width, height=my_height,
                                        bg=my_color, fg="black",
                                        state=my_state, command=command)
@@ -47,33 +47,24 @@ class MyScale(Scale):  # пока не используется, так что �
         self.end = end
 
 
-class MyMessage:
+class MyMessage(Message):
     def __init__(self, root, message, my_row, my_column, my_width=90, my_relief='raised'):
+        super(MyMessage, self).__init__(root, width=my_width,
+                                        textvariable=self.var,
+                                        relief=my_relief)
         self.var = StringVar()
-        self.message = Message(root,
-                               width=my_width,
-                               textvariable=self.var,
-                               relief=my_relief)
-        self.message.grid(row=my_row, column=my_column)
+        self.grid(row=my_row, column=my_column)
         self.var.set(message)
 
 
-class MyEntry:
+class MyEntry(Entry):
     def __init__(self, root, my_row, my_column, my_width=30, my_relief='raised', my_color='white'):
-        self.entry = Entry(root,
-                           width=my_width,
-                           relief=my_relief,
-                           bg=my_color)
-        self.entry.grid(row=my_row, column=my_column)
-
-    def get(self):
-        return self.entry.get()
-
-    def insert(self, st):
-        self.entry.insert(0, st)
+        super(MyEntry, self).__init__(root, width=my_width,
+                                      relief=my_relief, bg=my_color)
+        self.grid(row=my_row, column=my_column)
 
 
-class MyLabel:
+class MyLabel(Label):
     def __init__(self, root, my_row, my_column, text, my_color='white'):
-        self.label = Label(root, text=text, bg=my_color)
-        self.label.grid(row=my_row, column=my_column)
+        super(MyLabel, self).__init__(root, text=text, bg=my_color)
+        self.grid(row=my_row, column=my_column)
