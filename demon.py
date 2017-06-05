@@ -141,13 +141,22 @@ def skype_call():
             print("Что-то пошло не так при запуске ({0})".format(e))
 
 
+def respond(string):
+    functionality = {['поиск', 'google', 'гугл', 'yandex', 'яндекс']: ggl,  # в идеале нужно сделать возможность,
+                     'запуск': start, 'запись': record, 'skype': skype_call}  # чтобы можно было задавать это юзверю
+    for i in functionality.keys():
+        if string in i:
+            return functionality[i]
+    raise KeyError
+
+
 def pseudo_main():
     tell_and_die('Приветствую! Ожидаю Ваших указаний')
-    functionality = {'поиск': ggl, 'запуск': start, 'запись': record, 'skype': skype_call}
+
     while True:
         st = get_word().lower()
         try:
-            functionality[st]()
+            respond(st)()
         except KeyError:
             pass
 
