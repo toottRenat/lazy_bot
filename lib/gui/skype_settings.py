@@ -1,6 +1,8 @@
 import tkinter.messagebox
-from lazy_bot import demon
-from lazy_bot.lib.lazy_tkinter import MyEntry, MyButton, MyLabel
+import demon
+from lib.lazy_tkinter import MyEntry, MyButton, MyLabel
+#from lazy_bot import demon
+#from lazy_bot.lib.lazy_tkinter import MyEntry, MyButton, MyLabel
 import PIL.Image
 import PIL.ImageTk
 from functools import partial
@@ -100,15 +102,10 @@ def pseudo_main():
     root = Tk()
     root.geometry("500x200+10+10")
     root.title("Demon gui")
-    root.resizable(False, False)
+    #root.resizable(False, False)
     pa = SkypeConfig(root)
     root.mainloop()
 
 if __name__ == '__main__':
     PREFIX = '../../'
-    root = Tk()
-    root.geometry("500x200+10+10")
-    root.title("Demon gui")
-    root.resizable(False, False)
-    pa = SkypeConfig(root)
-    root.mainloop()
+    pseudo_main()

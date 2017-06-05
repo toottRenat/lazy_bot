@@ -2,7 +2,7 @@ from tkinter import *
 
 
 """
-Да, я в курсе, что эта либа написана супез хуево.
+Да, я в курсе, что эта либа написана супер хуево.
 Сорян, перепишу, когда будет не лень.
 """
 
@@ -11,55 +11,40 @@ def pass_f(_):
     pass
 
 
-class MyButton:
+class MyButton(Button):
     def __init__(self, root, my_row, my_column, cur_func=pass_f, my_text=None,
                  my_state='normal', my_width=10, my_color='white', my_height=3, img=None, command=None):
-        self.button = Button(root, font='Arial 10',
-                             width=my_width, height=my_height,
-                             bg=my_color, fg="black",
-                             state=my_state, command=command)
-        self.button.grid(row=my_row, column=my_column)
-        self.button.bind("<Button-1>", cur_func)  # при нажатии ЛКМ на кнопку вызывается функция cur_func
+        super(MyButton, self).__init__(root, font='Arial 10',  # магия, не иначе
+                                       width=my_width, height=my_height,
+                                       bg=my_color, fg="black",
+                                       state=my_state, command=command)
+        self.grid(row=my_row, column=my_column)
+        self.bind("<Button-1>", cur_func)
         if my_text is None:
-            self.button["image"] = img
-            self.button["compound"] = CENTER
+            self["image"] = img
+            self["compound"] = CENTER
         else:
-            self.button["text"] = my_text
-
-    def config(self, my_state="normal"):
-        self.button.config(state=my_state)
-
-    def invoke(self):
-        self.button.invoke()
+            self["text"] = my_text
 
 
-class MyCheckButton:
+class MyCheckButton(Checkbutton):
     def __init__(self, root, my_text, my_row, my_column, my_var):
-        self.check_button = Checkbutton(root, text=my_text, variable=my_var, onvalue=1, offvalue=0, height=5, width=20)
-        self.check_button.grid(row=my_row, column=my_column)
+        super(MyCheckButton, self).__init__(root, text=my_text, variable=my_var,
+                                            onvalue=1, offvalue=0, height=5, width=20)
+        self.grid(row=my_row, column=my_column)
 
 
-class MyScale:
+class MyScale(Scale):  # пока не используется, так что может потребоваться доработка
     def __init__(self, root, my_row, my_column, start, end, my_from=5, my_to=0, my_resolution=0.1):
-        self.scale = Scale(root,
-                           length=300,
-                           from_=my_from, to=my_to,
-                           resolution=my_resolution)
-        self.scale.grid(row=my_row, column=my_column)
-        self.scale.set(1)
+        super(MyScale, self).__init__(root, length=300,
+                                      from_=my_from, to=my_to,
+                                      resolution=my_resolution)
+        self.grid(row=my_row, column=my_column)
+        self.set(1)
         self.start = start
         self.lf = []
         self.rf = []
         self.end = end
-
-    def get_value(self):
-        return float(self.scale.get())
-
-    def get_start(self):
-        return self.start
-
-    def get_end(self):
-        return self.end
 
 
 class MyMessage:

@@ -10,7 +10,7 @@ Available functions:
 - tell_and_die: Tells given sentence or plays given recorded sound using pyglet.
 - get_word: Waiting until something meaningful will be told and returns it as string.
 - ggl: Opens a new window in default browser with given google query.
-- start: Trying to start given program. If there is no such program in PATH  does nothing.
+- start: Trying to start given program. If there is no such program in PATH does nothing.
 - record: Provides speech to text in given file( format *.txt).
 - open_and_write: Opens given file and writes from speech input.
 - skype_call: Calling given name or tells that there is no registered user in contacts.txt.
