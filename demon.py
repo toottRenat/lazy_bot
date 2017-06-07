@@ -23,7 +23,7 @@ import os
 import time
 from gtts import gTTS
 
-STOP_RECORDING = ['закончить запись', 'закончи запись']
+STOP_RECORDING = ('закончить запись', 'закончи запись')
 
 
 def tell_and_die(speech='', name='1.mp3'):  # воспроизводит либо заданный текст, либо имеющуюся запись,
