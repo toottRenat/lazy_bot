@@ -23,6 +23,7 @@ import os
 import time
 from gtts import gTTS
 
+PREFIX = ''
 STOP_RECORDING = ('закончить запись', 'закончи запись')
 
 
@@ -142,12 +143,39 @@ def skype_call():
 
 
 def respond(string):
-    functionality = {['поиск', 'google', 'гугл', 'yandex', 'яндекс']: ggl,  # в идеале нужно сделать возможность,
-                     'запуск': start, 'запись': record, 'skype': skype_call}  # чтобы можно было задавать это юзверю
+    functionality = get_functionality()
+    print(functionality)
+    #functionality = {['поиск', 'google', 'гугл', 'yandex', 'яндекс']: ggl,  # в идеале нужно сделать возможность,
+    #                 'запуск': start, 'запись': record, 'skype': skype_call}  # чтобы можно было задавать это юзверю
     for i in functionality.keys():
         if string in i:
             return functionality[i]
     raise KeyError
+
+
+def get_functionality():
+    start_conf_file = ''.join([PREFIX, 'var/conf/start_config.txt'])
+    search_conf_file = ''.join([PREFIX, 'var/conf/search_config.txt'])
+    record_conf_file = ''.join([PREFIX, 'var/conf/record_config.txt'])
+    skype_call_conf_file = ''.join([PREFIX, 'var/conf/skype_call_config.txt'])
+
+    files = (start_conf_file, search_conf_file, record_conf_file, skype_call_conf_file)
+    commands = (start, ggl, record, skype_call)
+    func = {}
+
+    for i, file in enumerate(files):
+        try:
+            with open(file, 'r') as f:
+                arr = []
+                for line in f:
+                    arr.append(line.strip())
+            if len(arr) > 0:
+                func[arr] = commands[i]
+            else:
+                print(' '.join(['Файл', file, 'пустой, необходимо заполнить его хоть чем-то']))
+        except FileNotFoundError:
+            print(' '.join(['Файл', file, 'не найден, что-то пошло не так']))
+    return func
 
 
 def pseudo_main():

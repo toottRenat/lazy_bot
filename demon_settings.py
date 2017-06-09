@@ -1,9 +1,17 @@
+
+"""
+Мб нужна документация на эту прогу, но так лень...
+По идее все просто пока...
+"""
+
 import tkinter.messagebox
-from lazy_bot import demon
-from lazy_bot.lib.lazy_tkinter import MyEntry, MyButton, MyLabel
+import demon
+from lib.lazy_tkinter import MyEntry, MyButton, MyLabel
+#from lazy_bot import demon
+#from lazy_bot.lib.lazy_tkinter import MyEntry, MyButton, MyLabel
 import PIL.Image
 import PIL.ImageTk
-from functools import partial
+from functools import partial  # детка избавляет от сотен строк кода, лайк, репост
 from tkinter.filedialog import *
 
 
@@ -12,6 +20,10 @@ PREFIX = ''
 
 class DemonConfig:
     start_conf_file = ''.join([PREFIX, 'var/conf/start_config.txt'])
+    search_conf_file = ''.join([PREFIX, 'var/conf/search_config.txt'])
+    record_conf_file = ''.join([PREFIX, 'var/conf/record_config.txt'])
+    skype_call_conf_file = ''.join([PREFIX, 'var/conf/skype_call_config.txt'])
+
     skype_contacts_file = ''.join([PREFIX, 'var/skype/contacts.txt'])
     skype_conf_file = ''.join([PREFIX, 'var/conf/skype_config.txt'])
 
@@ -24,10 +36,14 @@ class DemonConfig:
         self.menubar = Menu(self.root)
 
         self.config_menu = Menu(self.menubar, tearoff=0)
-        self.config_menu.add_command(label="Запуск программы", command=self.start_config)  # todo
-        self.config_menu.add_command(label="Поиск в интернете", command=self.add_skype)  # todo
-        self.config_menu.add_command(label="Запись", command=self.add_skype)  # todo
-        self.config_menu.add_command(label="Звонок по Skype", command=self.add_skype)  # todo
+        self.config_menu.add_command(label="Запуск программы",
+                                     command=partial(self.any_config, self.start_conf_file, self.any_config))
+        self.config_menu.add_command(label="Поиск в интернете",
+                                     command=partial(self.any_config, self.search_conf_file, self.any_config))
+        self.config_menu.add_command(label="Запись",
+                                     command=partial(self.any_config, self.record_conf_file, self.any_config))
+        self.config_menu.add_command(label="Звонок по Skype",
+                                     command=partial(self.any_config, self.skype_call_conf_file, self.any_config))
         self.menubar.add_cascade(label="Команды помощника", menu=self.config_menu)
 
         self.skype_menu = Menu(self.menubar, tearoff=0)
@@ -47,7 +63,8 @@ class DemonConfig:
         entries.append(MyEntry(self.root, 1, 1, my_color='lemon chiffon'))
 
         accept_button = MyButton(self.root, 2, 1, my_text='Запомнить',
-                                 cur_func=partial(self.add_content, entries, self.skype_contacts_file, ' : '),
+                                 cur_func=partial(self.add_content, entries,
+                                                  self.skype_contacts_file, ' : ', self.add_skype),
                                  my_color='lemon chiffon')  # скорее всего можно найти и получше цвет для кнопок
 
         voice_button = MyButton(self.root,  2, 0, my_text='Использовать голос',
@@ -55,7 +72,7 @@ class DemonConfig:
                                 my_color='lemon chiffon')
 
     @staticmethod
-    def add_content(entries, file, joining, _):
+    def add_content(entries, file, joining, refresh, _):
         if '' not in [i.get() for i in entries]:
             with open(file, 'a') as f:
                 f.write(joining.join([i.get() for i in entries]))
@@ -63,6 +80,7 @@ class DemonConfig:
                 tkinter.messagebox.showinfo('Well done', "Данные успешно добавлены")
         else:
             tkinter.messagebox.showerror('Error', "Необходимо заполнить все поля!")
+        refresh(file, refresh)
 
     def get_from_micro(self, _):
         demon.tell_and_die(speech='Как запомнить данный контакт?')
@@ -72,7 +90,8 @@ class DemonConfig:
                 self.name_entry.insert(0, st)
                 break
 
-    def change_skype(self):  # картинка не показывается wtf
+    def change_skype(self):  # было бы круто подогнать это под any_config
+        # картинка не показывается wtf
         self.__die_root()
         src_image = PIL.Image.open(''.join([PREFIX, 'share/button_images/Cross_30x25.jpg']))  # wtf
         img = PIL.ImageTk.PhotoImage(src_image)
@@ -89,19 +108,20 @@ class DemonConfig:
                 button["compound"] = CENTER
                 i += 1
 
-    def start_config(self):
+    def any_config(self, file, refresh):
         self.__die_root()
         src_image = PIL.Image.open(''.join([PREFIX, 'share/button_images/Cross_30x25.jpg']))  # мб разные надо
         img = PIL.ImageTk.PhotoImage(src_image)
         i = 0
-        with open(self.start_conf_file, 'r') as f:
+        with open(file, 'r') as f:
             for line in f:
-                label = MyLabel(self.root, i, 3, line,
+                label = MyLabel(self.root, i + 3, 0, line,
                                 my_color='azure')
                 button = Button(self.root, width=30,
                                 height=25, state='normal')
-                button.grid(row=i, column=4)
-                button.bind("<Button-1>", partial(self.__delete_line, i, self.start_conf_file, self.start_config))
+                button.grid(row=i + 3, column=1)
+                button.bind("<Button-1>", partial(self.__delete_line, i, file,
+                                                  partial(self.any_config, self.start_conf_file, self.any_config)))
                 button["image"] = img
                 button["compound"] = CENTER
                 i += 1
@@ -109,7 +129,8 @@ class DemonConfig:
         entry = MyEntry(self.root, 0, 0, my_color='lemon chiffon')
 
         accept_button = MyButton(self.root, 2, 1, my_text='Запомнить',
-                                 cur_func=partial(self.add_content, [entry], self.start_conf_file, ''),
+                                 cur_func=partial(self.add_content, [entry],
+                                                  file, '', refresh),
                                  my_color='lemon chiffon')  # скорее всего можно найти и получше цвет для кнопок
 
         voice_button = MyButton(self.root,  2, 0, my_text='Использовать голос',
