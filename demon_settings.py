@@ -4,11 +4,10 @@
 По идее все просто пока...
 """
 
-import tkinter.messagebox
 import demon
 from lib.lazy_tkinter import MyEntry, MyButton, MyLabel
-#from lazy_bot import demon
-#from lazy_bot.lib.lazy_tkinter import MyEntry, MyButton, MyLabel
+import tkinter.messagebox
+
 import PIL.Image
 import PIL.ImageTk
 from functools import partial  # детка избавляет от сотен строк кода, лайк, репост
@@ -23,6 +22,7 @@ class DemonConfig:
     search_conf_file = ''.join([PREFIX, 'var/conf/search_config.txt'])
     record_conf_file = ''.join([PREFIX, 'var/conf/record_config.txt'])
     skype_call_conf_file = ''.join([PREFIX, 'var/conf/skype_call_config.txt'])
+    youtube_conf_file = ''.join([PREFIX, 'var/conf/youtube_config.txt'])
 
     skype_contacts_file = ''.join([PREFIX, 'var/skype/contacts.txt'])
     skype_conf_file = ''.join([PREFIX, 'var/conf/skype_config.txt'])
@@ -37,13 +37,20 @@ class DemonConfig:
 
         self.config_menu = Menu(self.menubar, tearoff=0)
         self.config_menu.add_command(label="Запуск программы",
-                                     command=partial(self.any_config, self.start_conf_file, self.any_config))
+                                     command=partial(self.any_config, self.start_conf_file,
+                                                     self.any_config, 'запускать программы'))
         self.config_menu.add_command(label="Поиск в интернете",
-                                     command=partial(self.any_config, self.search_conf_file, self.any_config))
+                                     command=partial(self.any_config, self.search_conf_file,
+                                                     self.any_config, 'искать в интернете'))
         self.config_menu.add_command(label="Запись",
-                                     command=partial(self.any_config, self.record_conf_file, self.any_config))
+                                     command=partial(self.any_config, self.record_conf_file,
+                                                     self.any_config, 'записывать в файл'))
         self.config_menu.add_command(label="Звонок по Skype",
-                                     command=partial(self.any_config, self.skype_call_conf_file, self.any_config))
+                                     command=partial(self.any_config, self.skype_call_conf_file,
+                                                     self.any_config, 'звонить по Skype'))
+        self.config_menu.add_command(label="Видео в Youtube",
+                                     command=partial(self.any_config, self.youtube_conf_file,
+                                                     self.any_config, 'искать видео'))
         self.menubar.add_cascade(label="Команды помощника", menu=self.config_menu)
 
         self.skype_menu = Menu(self.menubar, tearoff=0)
@@ -72,22 +79,23 @@ class DemonConfig:
                                 my_color='lemon chiffon')
 
     @staticmethod
-    def add_content(entries, file, joining, refresh, _):
+    def add_content(entries, file, joining, refresh, speech, _):
         if '' not in [i.get() for i in entries]:
             with open(file, 'a') as f:
-                f.write(joining.join([i.get() for i in entries]))
+                f.write(joining.join([i.get().lower() for i in entries]))
                 f.write('\n')
                 tkinter.messagebox.showinfo('Well done', "Данные успешно добавлены")
         else:
             tkinter.messagebox.showerror('Error', "Необходимо заполнить все поля!")
-        refresh(file, refresh)
+        refresh(file, refresh, speech)
 
-    def get_from_micro(self, _):
-        demon.tell_and_die(speech='Как запомнить данный контакт?')
+    @staticmethod
+    def get_from_micro(entry, speech,_):
+        demon.tell_and_die(speech='После какой команды {0}?'.format(speech))
         while True:
             st = demon.get_word()
             if st != '':
-                self.name_entry.insert(0, st)
+                entry.insert(0, st)
                 break
 
     def change_skype(self):  # было бы круто подогнать это под any_config
@@ -108,11 +116,17 @@ class DemonConfig:
                 button["compound"] = CENTER
                 i += 1
 
-    def any_config(self, file, refresh):
+    def any_config(self, file, refresh, speech):
         self.__die_root()
         src_image = PIL.Image.open(''.join([PREFIX, 'share/button_images/Cross_30x25.jpg']))  # мб разные надо
         img = PIL.ImageTk.PhotoImage(src_image)
         i = 0
+        try:
+            f = open(file, 'r')
+            f.close()
+        except FileNotFoundError:
+            f = open(file, 'w')
+            f.close()
         with open(file, 'r') as f:
             for line in f:
                 label = MyLabel(self.root, i + 3, 0, line,
@@ -121,7 +135,8 @@ class DemonConfig:
                                 height=25, state='normal')
                 button.grid(row=i + 3, column=1)
                 button.bind("<Button-1>", partial(self.__delete_line, i, file,
-                                                  partial(self.any_config, self.start_conf_file, self.any_config)))
+                                                  partial(self.any_config, file,
+                                                          self.any_config, speech)))
                 button["image"] = img
                 button["compound"] = CENTER
                 i += 1
@@ -130,11 +145,11 @@ class DemonConfig:
 
         accept_button = MyButton(self.root, 2, 1, my_text='Запомнить',
                                  cur_func=partial(self.add_content, [entry],
-                                                  file, '', refresh),
+                                                  file, '', refresh, speech),
                                  my_color='lemon chiffon')  # скорее всего можно найти и получше цвет для кнопок
 
         voice_button = MyButton(self.root,  2, 0, my_text='Использовать голос',
-                                cur_func=self.get_from_micro, my_width=20,
+                                cur_func=partial(self.get_from_micro, entry, speech), my_width=20,
                                 my_color='lemon chiffon')
 
     @staticmethod

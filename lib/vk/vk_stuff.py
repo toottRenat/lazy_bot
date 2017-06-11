@@ -1,5 +1,11 @@
 # -*- encoding: utf-8 -*-
 
+"""
+Код взят с сайта
+http://old.pynsk.ru/posts/2015/Nov/26/api-vsemu-golova-vkontakte-ot-nachala-do-otpravki-soobshcheniia-drugu/#.WTwJn5Dyi73
+мб как-нибудь подкорректирую и сделаю красиво, но пока хз как.
+"""
+
 from __future__ import unicode_literals
 from urllib.parse import parse_qs
 import webbrowser
@@ -9,12 +15,13 @@ import vk
 import time
 
 # id of vk.com application
-# APP_ID = 6043173
-APP_ID = 6054131
+APP_ID = 6068859
 # file, where auth data is saved
 AUTH_FILE = '.auth_data'
 # chars to exclude from filename
 FORBIDDEN_CHARS = '/\\\?%*:|"<>!'
+
+vk_id_conf_file = '../../var/vk/vk_id_config.txt'
 
 
 def get_saved_auth_params():
@@ -46,11 +53,10 @@ def get_auth_params():
                 "&scope=wall,messages&redirect_uri=http://oauth.vk.com/blank.html"
                 "&display=page&response_type=token".format(app_id=APP_ID))
     webbrowser.open_new_tab(auth_url)
-    #redirected_url = "https://oauth.vk.com/blank.html#access_token=9c1b7343ed95358f82abb1e8a087951fb8a4ad77" \
-    #                 "604ad2406c230167701122ba74c9314e0fa93af644a49&expires_in=86400&user_id=3920099"
     redirected_url = input("Paste here url you were redirected:\n")
     aup = parse_qs(redirected_url)
-    aup['access_token'] = aup.pop('#access_token')
+    aup['access_token'] = aup.pop(
+        'https://oauth.vk.com/blank.html#access_token')
     save_auth_params(aup['access_token'][0], aup['expires_in'][0],
                      aup['user_id'][0])
     return aup['access_token'][0], aup['user_id'][0]
@@ -70,19 +76,20 @@ def send_message(api, user_id, message, **kwargs):
     return api.messages.send(**data_dict)
 
 
-def main():
+def main():  # todo
     access_token, _ = get_saved_auth_params()
     if not access_token or not _:
         access_token, _ = get_auth_params()
     api = get_api(access_token)
-    # "https://  oauth.vk.com/blank.html#access_token=2c11d70372923b9efbb0dfaa79f154d3b6189d82a391b5ecf0957680466a3ff02d7796581a4d2822c6421&expires_in=86400&user_id=3920099"
-    #users = [95249893]
-    users = [3920099]
-    user_text = "."
-    for user_id in users:
-        print("User ", user_id)
-        res = send_message(api, user_id=user_id, message=user_text)
-        time.sleep(1)
-        print(res)
 
-main()
+    users = []
+    with open(vk_id_conf_file, 'r') as f:
+        for line in f:
+            users.append(int(line.strip()))
+
+    user_text = "Привет. Я научился с помощью API писать сообщение"  # todo
+    for user_id in users:
+        send_message(api, user_id=user_id, message=user_text)
+
+if __name__ == '__main__':
+    main()

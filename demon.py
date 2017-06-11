@@ -21,6 +21,9 @@ import webbrowser
 import pyglet
 import os
 import time
+import urllib
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
 from gtts import gTTS
 
 PREFIX = ''
@@ -142,14 +145,26 @@ def skype_call():
             print("Что-то пошло не так при запуске ({0})".format(e))
 
 
+def youtube():  # открывает первое в списке видео, мб нужно немного иначе сделать
+    tell_and_die(speech='Какое видео найти?')
+    while True:
+        new_st = get_word()
+        if new_st != '':
+            break
+    query = urllib.parse.quote(new_st)
+    url = "https://www.youtube.com/results?search_query=" + query
+    response = urlopen(url)
+    html = response.read()
+    soup = BeautifulSoup(html)
+    tell_and_die(name='share/recorded_sounds/sklonyayus-pered-vashej-volej.mp3')
+    webbrowser.open('https://www.youtube.com' + soup.findAll(attrs={'class': 'yt-uix-tile-link'})[0]['href'])
+
+
 def respond(string):
     functionality = get_functionality()
-    print(functionality)
-    #functionality = {['поиск', 'google', 'гугл', 'yandex', 'яндекс']: ggl,  # в идеале нужно сделать возможность,
-    #                 'запуск': start, 'запись': record, 'skype': skype_call}  # чтобы можно было задавать это юзверю
     for i in functionality.keys():
-        if string in i:
-            return functionality[i]
+        if string in functionality[i]:
+            return i
     raise KeyError
 
 
@@ -158,9 +173,10 @@ def get_functionality():
     search_conf_file = ''.join([PREFIX, 'var/conf/search_config.txt'])
     record_conf_file = ''.join([PREFIX, 'var/conf/record_config.txt'])
     skype_call_conf_file = ''.join([PREFIX, 'var/conf/skype_call_config.txt'])
+    youtube_conf_file = ''.join([PREFIX, 'var/conf/youtube_config.txt'])
 
-    files = (start_conf_file, search_conf_file, record_conf_file, skype_call_conf_file)
-    commands = (start, ggl, record, skype_call)
+    files = (start_conf_file, search_conf_file, record_conf_file, skype_call_conf_file, youtube_conf_file)
+    commands = (start, ggl, record, skype_call, youtube)
     func = {}
 
     for i, file in enumerate(files):
@@ -170,15 +186,17 @@ def get_functionality():
                 for line in f:
                     arr.append(line.strip())
             if len(arr) > 0:
-                func[arr] = commands[i]
+                func[commands[i]] = arr
             else:
                 print(' '.join(['Файл', file, 'пустой, необходимо заполнить его хоть чем-то']))
         except FileNotFoundError:
-            print(' '.join(['Файл', file, 'не найден, что-то пошло не так']))
+            print(' '.join(['Файл', file, 'не найден, создаю данный файл']))
+            f = open(file, 'w')
+            f.close()
     return func
 
 
-def pseudo_main():
+def pseudo_main():  # сделать максимально через 1 фразу, даже без семантического поиска
     tell_and_die('Приветствую! Ожидаю Ваших указаний')
 
     while True:
