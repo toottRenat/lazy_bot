@@ -14,6 +14,10 @@ Available functions:
 - record: Provides speech to text in given file( format *.txt).
 - open_and_write: Opens given file and writes from speech input.
 - skype_call: Calling given name or tells that there is no registered user in contacts.txt.
+- ...
+
+В идеале нужно подрубить семантический поиск и все в этом роде, чтобы сделать нечто универсальное,
+и распозновать все из одной большой фразы, а не несколько маленьких
 """
 import speech_recognition as sr
 import subprocess
@@ -22,6 +26,7 @@ import pyglet
 import os
 import time
 import urllib
+from lib.vk import vk_stuff
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from gtts import gTTS
@@ -160,6 +165,49 @@ def youtube():  # открывает первое в списке видео, м
     webbrowser.open('https://www.youtube.com' + soup.findAll(attrs={'class': 'yt-uix-tile-link'})[0]['href'])
 
 
+def play_music():  # todo
+    tell_and_die(speech='Какую композицию воспроизвести?')
+    while True:
+        new_st = get_word()
+        if new_st != '':
+            break
+    query = urllib.parse.quote(new_st)
+    url = "https://www.youtube.com/results?search_query=" + query
+    response = urlopen(url)
+    html = response.read()
+    soup = BeautifulSoup(html)
+    tell_and_die(name='share/recorded_sounds/sklonyayus-pered-vashej-volej.mp3')
+    webbrowser.open('https://www.youtube.com' + soup.findAll(attrs={'class': 'yt-uix-tile-link'})[0]['href'])
+
+
+def vk_message():
+    vk_message_conf_file = ''.join([PREFIX, 'var/conf/vk_message_config.txt'])
+    tell_and_die(speech='Кому написать?')
+    while True:
+        user = get_word()
+        if user != '':
+            break
+
+    with open(vk_message_conf_file, 'r') as f:
+        for line in f:
+            ans = line.split(' : ')
+            if ans[0].lower() == user.lower():
+                print(ans[0], ans[-1])
+                user = int(ans[-1])
+                break
+        else:  # если брейк не произошел
+            tell_and_die(speech=' '.join(['Контакт', user, 'не найден, попробуйте еще раз']))
+            return
+
+    tell_and_die(speech='Что написать?')
+    while True:
+        message = get_word()
+        if message != '':
+            break
+
+    vk_stuff.main(user, message)
+
+
 def respond(string):
     functionality = get_functionality()
     for i in functionality.keys():
@@ -174,11 +222,13 @@ def get_functionality():
     record_conf_file = ''.join([PREFIX, 'var/conf/record_config.txt'])
     skype_call_conf_file = ''.join([PREFIX, 'var/conf/skype_call_config.txt'])
     youtube_conf_file = ''.join([PREFIX, 'var/conf/youtube_config.txt'])
+    vk_conf_file = ''.join([PREFIX, 'var/conf/vk_config.txt'])
 
-    files = (start_conf_file, search_conf_file, record_conf_file, skype_call_conf_file, youtube_conf_file)
-    commands = (start, ggl, record, skype_call, youtube)
+    files = (start_conf_file, search_conf_file, record_conf_file,
+             skype_call_conf_file, youtube_conf_file, vk_conf_file)
+    commands = (start, ggl, record,
+                skype_call, youtube, vk_message)
     func = {}
-
     for i, file in enumerate(files):
         try:
             with open(file, 'r') as f:

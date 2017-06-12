@@ -76,20 +76,17 @@ def send_message(api, user_id, message, **kwargs):
     return api.messages.send(**data_dict)
 
 
-def main():  # todo
+def main(user, message):
     access_token, _ = get_saved_auth_params()
     if not access_token or not _:
         access_token, _ = get_auth_params()
     api = get_api(access_token)
 
-    users = []
-    with open(vk_id_conf_file, 'r') as f:
-        for line in f:
-            users.append(int(line.strip()))
+    #users = []
+    #with open(vk_id_conf_file, 'r') as f:
+    #    for line in f:
+    #        users.append(int(line.strip()))
 
-    user_text = "Привет. Я научился с помощью API писать сообщение"  # todo
-    for user_id in users:
-        send_message(api, user_id=user_id, message=user_text)
-
-if __name__ == '__main__':
-    main()
+    #message = "Привет. Я научился с помощью API писать сообщение"
+    #for user_id in users:
+    send_message(api, user_id=user, message=message)

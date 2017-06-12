@@ -1,7 +1,5 @@
 qwe : qwe
-123 : 123
-qwe : qwe
 afasf : dhfh
 qweqw : eqwe
 asdasdq : asdasdasd
-qwdasd : adqwdasd
+qweq : qwdasd
