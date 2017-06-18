@@ -27,6 +27,7 @@ class DemonConfig:
     youtube_conf_file = ''.join([PREFIX, 'var/conf/youtube_config.txt'])
     vk_message_conf_file = ''.join([PREFIX, 'var/conf/vk_message_config.txt'])
     vk_conf_file = ''.join([PREFIX, 'var/conf/vk_config.txt'])
+    play_music_file = ''.join([PREFIX, 'var/conf/play_music_config.txt'])
 
     def __init__(self, root):
         self.root = root
@@ -55,6 +56,11 @@ class DemonConfig:
                                      command=partial(self.any_config, self.youtube_conf_file,
                                                      self.any_config, ' '.join([st, 'искать видео']),
                                                      1, ['Команда, после которой будет поиск в YouTube:']))
+        # нужно додумать, т.к. с колонками он будет все пытаться распознать
+        self.config_menu.add_command(label="Музыка(локально)",  # todo
+                                     command=partial(self.any_config, self.play_music_file,
+                                                     self.any_config, ' '.join([st, 'воспроизводить музыку']),
+                                                     1, ['Команда, после которой будет запуск музыки:']))
         self.menubar.add_cascade(label="Команды помощника", menu=self.config_menu)
 
         self.skype_menu = Menu(self.menubar, tearoff=0)
@@ -134,7 +140,7 @@ class DemonConfig:
         entries = []
         while j < n_entries:
             label = MyLabel(self.root, j, 0, labels[j], my_color='azure')
-            entries.append(MyEntry(self.root, j, 1, my_color='lemon chiffon'))
+            entries.append(MyEntry(self.root, j, 1, my_color='lemon chiffon'))  # можно b2ec5d
             j += 1
         accept_button = MyButton(self.root, j + 1, 1, my_text='Запомнить',
                                  cur_func=partial(self.add_content, entries,

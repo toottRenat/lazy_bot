@@ -11,7 +11,7 @@ Available functions:
 - get_word: Waiting until something meaningful will be told and returns it as string.
 - ggl: Opens a new window in default browser with given google query.
 - start: Trying to start given program. If there is no such program in PATH does nothing.
-- record: Provides speech to text in given file( format *.txt).
+- record: Provides speech to text in given file (format *.txt).
 - open_and_write: Opens given file and writes from speech input.
 - skype_call: Calling given name or tells that there is no registered user in contacts.txt.
 - ...
@@ -35,9 +35,13 @@ PREFIX = ''
 STOP_RECORDING = ('закончить запись', 'закончи запись')
 
 
-def tell_and_die(speech='', name='1.mp3'):  # воспроизводит либо заданный текст, либо имеющуюся запись,
-    if name == '1.mp3':                     # соответственно, если была подана запись,
-                                            # то не имеет смысла добавлять какой-либо текст
+def tell_and_die(speech='', name='1.mp3'):
+    """
+    Воспроизводит либо заданный текст, либо имеющуюся запись,
+    соответственно, если была подана запись,
+    то не имеет смысла добавлять какой-либо текст
+    """
+    if name == '1.mp3':
         tts = gTTS(text=speech, lang='ru')
         tts.save("1.mp3")
         sound = pyglet.resource.media('1.mp3', streaming=False)
@@ -48,7 +52,10 @@ def tell_and_die(speech='', name='1.mp3'):  # воспроизводит либ�
         sound.play()
 
 
-def get_word():  # считывает входящий поток с микрофона и переводит его в текст
+def get_word():
+    """
+    Считывает входящий поток с микрофона и переводит его в текст
+    """
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print("Скажите что-нибудь")
@@ -65,24 +72,31 @@ def get_word():  # считывает входящий поток с микро�
     return s
 
 
-def ggl():  # забивает весь поток с микрофона в гугл с открытием браузера
-    tell_and_die(speech='Что найти?')
+def wait_for_word(st):
+    tell_and_die(speech=st)
     while True:
         new_st = get_word()
         if new_st != '':
             break
+    return new_st
+
+
+def ggl():
+    """
+    Забивает весь поток с микрофона в гугл с открытием браузера
+    """
+    new_st = wait_for_word('Что найти?')
     tell_and_die(name='share/recorded_sounds/sklonyayus-pered-vashej-volej.mp3')
     webbrowser.open('https://www.google.ru/search?q={0}&oq={1}&aqs=chrome.0.69i59j69i61.'
                     '775j0j8&sourceid=chrome&ie=UTF-8'.format(new_st, new_st))
 
 
-def start():  # запускает программу по имени. Очень важно, чтобы данное имя имелось в переменной PATH,
-              # и да, это пока только под винду. О том, как это должно работать под линуксом, пока не задумывался
-    tell_and_die(speech='Какую программу запустить?')
-    while True:
-        new_st = get_word()
-        if new_st != '':
-            break
+def start():
+    """
+    Запускает программу по имени. Очень важно, чтобы данное имя имелось в переменной PATH,
+    и да, это пока только под винду. О том, как это должно работать под линуксом, пока не задумывался
+    """
+    new_st = wait_for_word('Какую программу запустить?')
     try:
         with subprocess.Popen(' '.join(['start', new_st]), shell=True) as p:
             time.sleep(1)
@@ -92,13 +106,7 @@ def start():  # запускает программу по имени. Очен�
 
 
 def record():
-    tell_and_die(speech='В какой файл записать?')
-
-    while True:
-        print('Скажите название файла')
-        new_st = get_word()
-        if new_st != '':
-            break
+    new_st = wait_for_word('В какой файл записать?')
     try:
         file = open(''.join([new_st, '.txt']))
     except IOError:
@@ -124,11 +132,7 @@ def open_and_write(file_name, mode='w'):
 
 
 def skype_call():
-    tell_and_die(speech='Кому позвонить?')
-    while True:
-        new_st = get_word()
-        if new_st != '':
-            break
+    new_st = wait_for_word('Кому позвонить?')
     try:
         with open('var/skype/contacts.txt', 'r') as f:
             for line in f:
@@ -150,27 +154,19 @@ def skype_call():
             print("Что-то пошло не так при запуске ({0})".format(e))
 
 
-def youtube():  # открывает первое в списке видео, мб нужно немного иначе сделать
-    tell_and_die(speech='Какое видео найти?')
-    while True:
-        new_st = get_word()
-        if new_st != '':
-            break
+def youtube():
+    new_st = wait_for_word('Какое видео найти?')
     query = urllib.parse.quote(new_st)
     url = "https://www.youtube.com/results?search_query=" + query
-    response = urlopen(url)
-    html = response.read()
-    soup = BeautifulSoup(html)
+    #response = urlopen(url)
+    #html = response.read()
+    #soup = BeautifulSoup(html)
     tell_and_die(name='share/recorded_sounds/sklonyayus-pered-vashej-volej.mp3')
-    webbrowser.open('https://www.youtube.com' + soup.findAll(attrs={'class': 'yt-uix-tile-link'})[0]['href'])
+    webbrowser.open(url)
 
 
 def play_music():  # todo
-    tell_and_die(speech='Какую композицию воспроизвести?')
-    while True:
-        new_st = get_word()
-        if new_st != '':
-            break
+    new_st = wait_for_word('Какую композицию воспроизвести?')
     query = urllib.parse.quote(new_st)
     url = "https://www.youtube.com/results?search_query=" + query
     response = urlopen(url)
@@ -182,11 +178,7 @@ def play_music():  # todo
 
 def vk_message():
     vk_message_conf_file = ''.join([PREFIX, 'var/conf/vk_message_config.txt'])
-    tell_and_die(speech='Кому написать?')
-    while True:
-        user = get_word()
-        if user != '':
-            break
+    user = wait_for_word('Кому написать?')
 
     with open(vk_message_conf_file, 'r') as f:
         for line in f:
