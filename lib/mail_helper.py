@@ -1,4 +1,5 @@
 import quopri
+import sys
 import base64
 from email.header import Header, decode_header, make_header
 import numpy as np
@@ -41,17 +42,23 @@ for e_id in ids[0].split()[::-1]:
     i += 1
     subject = server.fetch(e_id, '(BODY.PEEK[HEADER.FIELDS (SUBJECT)])')[1][0][1].strip()
     #print(quopri.decodestring(subject)[8:30].lower())
-    h = make_header(decode_header(quopri.decodestring(subject)))
-    print(str(h))
+    #print(type(subject))
+    #print(type(quopri.decodestring(subject)))
+    #h = make_header(decode_header(str(quopri.decodestring(subject))))
+    #print(decode_header(str(quopri.decodestring(subject))))
+    #print(decode_header(str(quopri.decodestring(subject))))
     #print(find_encoding(quopri.decodestring(subject).lower()))
-    #encoding, t = find_encoding(quopri.decodestring(subject).lower())
-    #if t == 'b':
-        #print(type(quopri.decodestring(subject)))
-        #print("\t" + base64.decodebytes(quopri.decodestring(subject)))
-    #else:
+    s = b'INCa0L7QvNC40YLQtdGCINCT0L7RgdC00YPQvNGL'
+    encoding, t = find_encoding(quopri.decodestring(subject).lower())
+    if t == 'b':
+        #print(subject)
+        print(s.decode('utf-8'))
+        #print(base64.b64decode(quopri.decodestring(subject)))
+    else:
+        pass
         #print("\t" + quopri.decodestring(subject).decode(encoding))
     #print(b'=?utf-8?b' in quopri.decodestring(subject)[8:26].lower())
     #print("\t" + str(quopri.decodestring(subject), encoding))  # koi8_r, UTF-8, cp1251
     #print("\t" + quopri.decodestring(subject.encode('utf-8')).decode('utf-8'))
-    if i == 300:
+    if i == 30:
         break
