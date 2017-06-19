@@ -60,7 +60,8 @@ class DemonConfig:
         self.config_menu.add_command(label="Музыка(локально)",  # todo
                                      command=partial(self.any_config, self.play_music_file,
                                                      self.any_config, ' '.join([st, 'воспроизводить музыку']),
-                                                     1, ['Команда, после которой будет запуск музыки:']))
+                                                     2, ['Путь, по которому находятся композиции:',
+                                                         "Команда, после которой будет запуск музыки:"]))
         self.menubar.add_cascade(label="Команды помощника", menu=self.config_menu)
 
         self.skype_menu = Menu(self.menubar, tearoff=0)
@@ -124,8 +125,8 @@ class DemonConfig:
             f.close()
         with open(file, 'r') as f:
             for line in f:
-                label = MyLabel(self.root, i + 4, 0, line,
-                                my_color='azure')
+                MyLabel(self.root, i + 4, 0, line,
+                        my_color='azure')
                 button = Button(self.root, width=30,
                                 height=25, state='normal')
                 button.grid(row=i + 4, column=1)
@@ -139,17 +140,17 @@ class DemonConfig:
         j = 0
         entries = []
         while j < n_entries:
-            label = MyLabel(self.root, j, 0, labels[j], my_color='azure')
+            MyLabel(self.root, j, 0, labels[j], my_color='azure')
             entries.append(MyEntry(self.root, j, 1, my_color='lemon chiffon'))  # можно b2ec5d
             j += 1
-        accept_button = MyButton(self.root, j + 1, 1, my_text='Запомнить',
-                                 cur_func=partial(self.add_content, entries,
-                                                  file, joining[n_entries], refresh, speech, labels),
-                                 my_color='lemon chiffon')  # скорее всего можно найти и получше цвет для кнопок
+        MyButton(self.root, j + 1, 1, my_text='Запомнить',
+                 cur_func=partial(self.add_content, entries,
+                                  file, joining[n_entries], refresh, speech, labels),
+                 my_color='lemon chiffon')  # скорее всего можно найти и получше цвет для кнопок
 
-        voice_button = MyButton(self.root, j + 1, 0, my_text='Использовать голос',
-                                cur_func=partial(self.get_from_micro, entries, speech), my_width=20,
-                                my_color='lemon chiffon')
+        MyButton(self.root, j + 1, 0, my_text='Использовать голос',
+                 cur_func=partial(self.get_from_micro, entries, speech), my_width=20,
+                 my_color='lemon chiffon')
 
     @staticmethod
     def __delete_line(i, file, caller, _):
@@ -172,10 +173,10 @@ def pseudo_main():
     root = Tk()
     root.geometry("600x500+10+10")
     root.title("Demon gui")
-    #root.resizable(False, False)
-    pa = DemonConfig(root)
+    # root.resizable(False, False)
+    DemonConfig(root)
     root.mainloop()
 
 if __name__ == '__main__':
-    #PREFIX = '../../'
+    # PREFIX = '../../'
     pseudo_main()

@@ -1,11 +1,24 @@
 import quopri
 import sys
 import base64
+import socket
 from email.header import Header, decode_header, make_header
 import numpy as np
 from imaplib import IMAP4, IMAP4_SSL
 
-server = IMAP4_SSL('imap.mail.ru')
+s = b'INCa0L7QvNC40YLQtdGCINCT0L7RgdC00YPQvNGL'
+new_s = ''
+for i in s:
+    new_s += chr(i)
+print(new_s)
+h = make_header(decode_header(new_s))
+print(h, str(h))
+
+try:
+    server = IMAP4_SSL('imap.mail.ru')
+except socket.gaierror as e:
+    print('Скорее всего, нет подключения к интернету:', e)
+    sys.exit()
 mail = 'basonchik@mail.ru'
 email_pass = 'Ythtyj5623'
 server.login(mail, email_pass)
@@ -49,11 +62,14 @@ for e_id in ids[0].split()[::-1]:
     #print(decode_header(str(quopri.decodestring(subject))))
     #print(find_encoding(quopri.decodestring(subject).lower()))
     s = b'INCa0L7QvNC40YLQtdGCINCT0L7RgdC00YPQvNGL'
+    new_s = ''
+    for i in s:
+        new_s += chr(i)
     encoding, t = find_encoding(quopri.decodestring(subject).lower())
     if t == 'b':
         #print(subject)
-        print(s.decode('utf-8'))
-        #print(base64.b64decode(quopri.decodestring(subject)))
+        #print(s.decode('utf-8'))
+        print(base64.b64decode(new_s))
     else:
         pass
         #print("\t" + quopri.decodestring(subject).decode(encoding))

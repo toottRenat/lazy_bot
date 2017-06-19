@@ -19,17 +19,22 @@ Available functions:
 В идеале нужно подрубить семантический поиск и все в этом роде, чтобы сделать нечто универсальное,
 и распозновать все из одной большой фразы, а не несколько маленьких
 """
-import speech_recognition as sr
-import subprocess
-import webbrowser
-import pyglet
+
 import os
 import time
+import pyglet
+import random
 import urllib
-from lib.vk import vk_stuff
-from urllib.request import urlopen
-from bs4 import BeautifulSoup
+import subprocess
+import webbrowser
+import timeout_decorator
+import speech_recognition as sr
+
 from gtts import gTTS
+from mutagen.mp3 import MP3
+
+from lib.vk import vk_stuff
+
 
 PREFIX = ''
 STOP_RECORDING = ('закончить запись', 'закончи запись')
@@ -52,6 +57,7 @@ def tell_and_die(speech='', name='1.mp3'):
         sound.play()
 
 
+# @timeout_decorator.timeout(5)
 def get_word():
     """
     Считывает входящий поток с микрофона и переводит его в текст
@@ -132,17 +138,13 @@ def open_and_write(file_name, mode='w'):
 
 
 def skype_call():
+    skype_conf_file = ''.join([PREFIX, 'var/skype/contacts.txt'])
     new_st = wait_for_word('Кому позвонить?')
     try:
-        with open('var/skype/contacts.txt', 'r') as f:
-            for line in f:
-                ans = line.split(' : ')
-                if ans[0].lower() == new_st.lower():
-                    print(ans[0], ans[-1])
-                    new_st = ans[-1]
-                    break
-            else:  # если брейк не произошел
-                tell_and_die(speech=' '.join(['Контакт', new_st, 'не найден, попробуйте еще раз']))
+        new_st = get_line(skype_conf_file, new_st,
+                          ' '.join(['Контакт', new_st, 'не найден, попробуйте еще раз']))
+    except NameError:
+        return
     except FileNotFoundError:
         tell_and_die(speech='Нет ни одного контакта. Необходимо добавить хотя бы один контакт')
     else:  # если не было исключения
@@ -158,38 +160,54 @@ def youtube():
     new_st = wait_for_word('Какое видео найти?')
     query = urllib.parse.quote(new_st)
     url = "https://www.youtube.com/results?search_query=" + query
-    #response = urlopen(url)
-    #html = response.read()
-    #soup = BeautifulSoup(html)
     tell_and_die(name='share/recorded_sounds/sklonyayus-pered-vashej-volej.mp3')
     webbrowser.open(url)
 
 
 def play_music():  # todo
-    new_st = wait_for_word('Какую композицию воспроизвести?')
-    query = urllib.parse.quote(new_st)
-    url = "https://www.youtube.com/results?search_query=" + query
-    response = urlopen(url)
-    html = response.read()
-    soup = BeautifulSoup(html)
-    tell_and_die(name='share/recorded_sounds/sklonyayus-pered-vashej-volej.mp3')
-    webbrowser.open('https://www.youtube.com' + soup.findAll(attrs={'class': 'yt-uix-tile-link'})[0]['href'])
+    # Обновляет запись, по истечении времени, отведенного на воспроизведение.
+    # Если делать перемотку, то будут небольшие проблемы, а так норм.
+    music_conf_file = ''.join([PREFIX, 'var/conf/play_music_config.txt'])
+    new_st = 'zz'
+    #new_st = wait_for_word('Какого исполнителя запустить?')
+    try:
+        new_st = get_line(music_conf_file, new_st,
+                          ' '.join(['Исполнитель', new_st, 'не найден, попробуйте еще раз']))
+    except NameError:
+        return
+    else:
+        music_files = os.listdir(new_st)  # сделать рекурсивый просмотр директорий
+        random_mf = []
+        print(music_files)
+
+        while len(music_files) > 0:  # перемешивает композиции
+            i = random.randint(0, len(music_files) - 1)
+            random_mf.append(music_files[i])
+            music_files.pop(i)
+
+        print(random_mf)
+    try:
+        for i in music_files:
+            with subprocess.Popen(' '.join(['start wmplayer /close',
+                                            '\\'.join([new_st, i])]),
+                                  shell=True) as p:
+                audio = MP3('\\'.join([new_st, i]))
+                print(audio.info.length)
+                time.sleep(audio.info.length)
+                p.terminate()
+    except subprocess.CalledProcessError as e:
+        print("Что-то пошло не так при запуске ({0})".format(e))
 
 
 def vk_message():
     vk_message_conf_file = ''.join([PREFIX, 'var/conf/vk_message_config.txt'])
     user = wait_for_word('Кому написать?')
 
-    with open(vk_message_conf_file, 'r') as f:
-        for line in f:
-            ans = line.split(' : ')
-            if ans[0].lower() == user.lower():
-                print(ans[0], ans[-1])
-                user = int(ans[-1])
-                break
-        else:  # если брейк не произошел
-            tell_and_die(speech=' '.join(['Контакт', user, 'не найден, попробуйте еще раз']))
-            return
+    try:
+        user = get_line(vk_message_conf_file, user,
+                        ' '.join(['Контакт', user, 'не найден, попробуйте еще раз']))
+    except NameError:
+        return
 
     tell_and_die(speech='Что написать?')
     while True:
@@ -198,6 +216,19 @@ def vk_message():
             break
 
     vk_stuff.main(user, message)
+
+
+def get_line(file, new_st, ans):
+    with open(file, 'r') as f:
+        for line in f:
+            ans = line.split(' : ')
+            if ans[0].lower() == new_st.lower():
+                new_st = ans[-1]
+                break
+        else:  # если брейк не произошел
+            tell_and_die(speech=ans)
+            raise NameError
+    return new_st
 
 
 def respond(string):
@@ -238,8 +269,9 @@ def get_functionality():
     return func
 
 
-def pseudo_main():  # сделать максимально через 1 фразу, даже без семантического поиска
-    tell_and_die('Приветствую! Ожидаю Ваших указаний')
+def pseudo_main():
+    # сделать максимально через 1 фразу, даже без семантического поиска
+    tell_and_die('Приветствую! Ожидаю Ваших указаний.')
 
     while True:
         st = get_word().lower()
@@ -250,4 +282,5 @@ def pseudo_main():  # сделать максимально через 1 фра�
 
 
 if __name__ == '__main__':
-    pseudo_main()
+    play_music()
+    #pseudo_main()
